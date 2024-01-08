@@ -1,8 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+
+from profiles_api import serializers
 
 class HelloApiView(APIView):
     """Test API View"""
+    serializer_class = serializers.HelloSerializer
 
     def get(self, request, format=None):
         """Returns a list of APIView features"""
@@ -14,3 +18,29 @@ class HelloApiView(APIView):
         ]
 
         return Response({'message': 'Hello!', 'an_apiview': an_apiview})
+    
+    def post(self,request):
+        """Create a hello message with our name"""
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            name = serializer.validated_data.get('name')
+            message = f'Hello {name}'
+            return Response ({'message': message})
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+                )
+    
+    def put(self, request, pk=None):
+        """Handle updating an object. PK stands for Primary Key for a URL used by the PUT request. In this case I say that I don't want to use it"""
+        return Response({'method': 'PUT'})
+    
+    def patch(self, request, pk=None):
+        "Handle a partial update of an object. The difference with PUT is that PATCH updates a field provided in the request. If you pass 1 field in PUT, it will erase the rest of the content"
+        return Response({'method': 'PATCH'})
+    
+    def delete(self, request, pk=None):
+        """Delete an object"""
+        return Response ({'method': 'DELETE'})
